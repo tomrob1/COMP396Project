@@ -1,57 +1,33 @@
-maxRows <- 3100
+maxRows<- 5000
 
 getOrders <- function(store, newRowList, currentPos, info, params){
-
     allzero <- rep(0, length(newRowList))
 
-    if (is.null(store)) {
+        if (is.null(store)) {
         store <- initStore(newRowList, params$series)
     }
     store <- updateStore(store, newRowList, params$series)
-
-    if (store$iter > params$lookback){
-      # Call strategy loguc
-      marketOrders <- sapply(1:length(newRowList),
-                            function(x) ifelse(x %in% params$series,
-                                    lgStFt(store$cl,which(x==params$series),store$iter), 0))
-      
     
-    } else
-    marketOrders <- allzero
+    marketOrders <- sapply(1:length(newRowList),
+                                function(x) ifelse(x %in% params$series,
+                                        lgStFt(store$cl,which(x==params$series),store$iter), 0))
+    
     return(list(store=store,marketOrders=marketOrders,
 	                    limitOrders1=allzero,limitPrices1=allzero,
 	                    limitOrders2=allzero,limitPrices2=allzero))
 }
 
-
 ###############################################################################
 # main strategy logic
 ###############################################################################
 lgStFt <- function(clStore, column, iter){
-  startIndex <- iter - params$lookback
-  momentum <- last(momentum(clStore[startIndex:iter,column], params$lookback))
-
-  momentum1 <- last(momentum(clStore[startIndex:iter,1], params$lookback))
-  momentum2 <- last(momentum(clStore[startIndex:iter,2], params$lookback))
-
-  bool1 <- momentum1 > momentum2
-  bool2 <- momentum1 <= momentum2
-  #print(bool1)
-  
-  if(momentum1 > momentum2){
-    return(1)
-  }
-  if(momentum1 <= momentum2){
-    return(-1)
-  } else    return(0)
-
-
-  ## Returns
-  #Calculate monthly returns, lag monthly returns
-  # order.by must be either 'names()' or otherwise specified 
-  #returns <- last(monthlyReturn(clStore[startIndex:iter,column]))
-
+    diff1 <- diff(clStore[1:iter,1])
+    #diff2 <- diff(clStore[1:iter,9])
+    print(diff1) 
+    return(0)
 }
+
+
 
 
 ###############################################################################

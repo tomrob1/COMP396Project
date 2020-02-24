@@ -8,7 +8,7 @@ source('example_strategies.R');
 dataList <- getData(directory="PART1")
 
 # choose strategy from example_strategies
-strategy <- "probmomentum"
+strategy <- "cointegration"
           
 # check that the choice is valid
 is_valid_example_strategy <- function(strategy) { 
