@@ -21,9 +21,13 @@ getOrders <- function(store, newRowList, currentPos, info, params){
 # main strategy logic
 ###############################################################################
 lgStFt <- function(clStore, column, iter){
-    diff1 <- diff(clStore[1:iter,1])
-    #diff2 <- diff(clStore[1:iter,9])
-    print(diff1) 
+    diff1 <- diff(clStore[1:iter,1])[-1]
+    diff2 <- diff(clStore[1:iter,2])[-1]
+    #print(diff1) 
+ 
+    #model <- lm(diff1 ~ diff2 -1)
+    #model <- lm(diff(clStore[1:iter,1])[-1] ~ diff(clStore[1:iter,2])[-1] )
+    #print(all(is.na(diff1)))
     return(0)
 }
 

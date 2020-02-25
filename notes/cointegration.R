@@ -12,17 +12,23 @@ dataList2 <- getData("PART2")
 series <- lapply(dataList[1:10], function(x) x$Open)
 series2 <- lapply(dataList2[1:10], function(x) x$Open)
 
-#chart_Series(series[[1]])
-
+#Part 1
 ggplot() + 
   geom_line(data = fortify.zoo(series[[1]], melt = TRUE), aes(x=Index, y=Value, group=Series)) +
-  geom_line(data = fortify.zoo(series[[9]], melt = TRUE), aes(x=Index, y=Value, group=Series))
+  geom_line(data = fortify.zoo(series[[9]], melt = TRUE), aes(x=Index, y=Value, group=Series)) + 
+  ggtitle("Part 1 Series 1 + 9")
+#Part 2
+ggplot() + 
+  geom_line(data = fortify.zoo(series2[[1]], melt = TRUE), aes(x=Index, y=Value, group=Series)) +
+  geom_line(data = fortify.zoo(series2[[9]], melt = TRUE), aes(x=Index, y=Value, group=Series)) + 
+  ggtitle("Part 2 Series 1 + 9")
 
 #Difference in prices month to month
 pdtOne <- diff(series[[1]])[-1] 
 pdtNine <- diff(series[[9]])[-1]
 model <- lm(pdtOne ~ pdtNine -1)
 hr <- as.numeric(model$coefficients[1])
+
 
 #Spread
 spreadT <- pdtOne - hr * pdtNine
