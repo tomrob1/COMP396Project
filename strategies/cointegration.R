@@ -11,7 +11,6 @@ getOrders <- function(store, newRowList, currentPos, info, params){
     marketOrders <- sapply(1:length(newRowList),
                                 function(x) ifelse(x %in% params$series,
                                         lgStFt(store$cl,which(x==params$series),store$iter), 0))
-    
     return(list(store=store,marketOrders=marketOrders,
 	                    limitOrders1=allzero,limitPrices1=allzero,
 	                    limitOrders2=allzero,limitPrices2=allzero))
@@ -24,9 +23,10 @@ lgStFt <- function(clStore, column, iter){
     diff1 <- diff(clStore[1:iter,1])[-1]
     diff2 <- diff(clStore[1:iter,2])[-1]
     #print(diff1) 
- 
-    #model <- lm(diff1 ~ diff2 -1)
-    #model <- lm(diff(clStore[1:iter,1])[-1] ~ diff(clStore[1:iter,2])[-1] )
+    
+    model <- lm(clStore[1:iter,1] ~ clStore[1:iter,2])
+    hedge <- model$coefficients[2]
+    print(hedge)
     #print(all(is.na(diff1)))
     return(0)
 }
