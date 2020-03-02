@@ -30,41 +30,40 @@ ggplot() +
 ## TEST
 ##
 
-#Difference in prices month to month
+#MODEL 1
+#Difference in prices day to day
 pdtOne <- diff(series[[1]])[-1] 
 pdtNine <- diff(series[[9]])[-1]
 model <- lm(pdtOne ~ pdtNine -1)
 hr <- as.numeric(model$coefficients[1])
+  
+  #Spread
+  spreadT <- pdtOne - hr * pdtNine
+  meanT <- as.numeric(mean(spreadT, na.rm = TRUE))
+  sdT <- as.numeric(sd(spreadT, na.rm = TRUE))
+  kpss.test(spreadT, null = c("Trend"))
+  
+  #Once spread exceeds upper threshold, sell 1 buy 9
+  #Once spread drops below lower threshol, buy 1 sell 9
+  upperThr <- meanT + 1 * sdT
+  lowerThr <- meanT -1 * sdT
+  
+  plot(spreadT)
+  abline(h=meanT, col="red", lwd=2)
+  abline(h=meanT + 1 * sdT, col="blue", lwd=2)
+  abline(h=meanT -1 * sdT, col="blue", lwd=2)
+  
+  hist(spreadT, col="blue", breaks=100, main="Spread Histogram (1 vs 9)")
+  abline(v=meanT, col="red", lwd=2)
+  
+  #Stationarity test for spread
+  adf.test(spreadT)
 
-#Spread
-spreadT <- pdtOne - hr * pdtNine
-meanT <- as.numeric(mean(spreadT, na.rm = TRUE))
-sdT <- as.numeric(sd(spreadT, na.rm = TRUE))
-
-#Once spread exceeds upper threshold, sell 1 buy 9
-#Once spread drops below lower threshol, buy 1 sell 9
-upperThr <- meanT + 1 * sdT
-lowerThr <- meanT -1 * sdT
-
-plot(spreadT)
-abline(h=meanT, col="red", lwd=2)
-abline(h=meanT + 1 * sdT, col="blue", lwd=2)
-abline(h=meanT -1 * sdT, col="blue", lwd=2)
-
-hist(spreadT, col="blue", breaks=100, main="Spread Histogram (1 vs 9)")
-abline(v=meanT, col="red", lwd=2)
-
-#Stationarity test for spread
-adf.test(spreadT)
 
 
-
-#Model 2 test
-model2 <- lm(series[[1]] ~ series[[2]])
+#Model 2 test/
+model2 <- lm(series[[1]] ~ series[[9]])
 hedge <- model2$coefficients[2]
-spread <- series[[1]] - hedge*series[[2]]
+spread <- series[[1]] - hedge*series[[9]]
 plot(spread)
-
-
-
-
+adf.test(spread)
