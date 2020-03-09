@@ -29,7 +29,7 @@ lgStFt <- function(clStore, column, iter){
     
     model <- lm(clStore[1:iter,1] ~ clStore[1:iter,2])
     hedge <- model$coefficients[2]
-    spread<-
+    spread<- clStore[1:iter,1]
     return(0)
 }
 
