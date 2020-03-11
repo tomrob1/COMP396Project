@@ -12,6 +12,19 @@ dataList2 <- getData("PART2")
 series <- lapply(dataList[1:10], function(x) x$Open)
 series2 <- lapply(dataList2[1:10], function(x) x$Open)
 
+s1 <- merge(dataList[1], dataList2[1], all=TRUE)
+s1<- s1$Open
+
+s9 <- merge(dataList[9], dataList2[9], all=TRUE)
+s9 <- s9$Open
+
+modelOverall <- lm(s1 ~ s9)
+hedgeOverall <- modelOverall$coefficients[2]
+spreadOverall <- s1 - hedgeOverall*s9
+adf.test(spreadOverall)
+plot(spreadOverall)
+
+
 #Part 1
 ggplot() + 
   geom_line(data = fortify.zoo(series[[1]], melt = TRUE), aes(x=Index, y=Value, group=Series)) +
@@ -24,40 +37,6 @@ ggplot() +
   ggtitle("Part 2 Series 1 + 9")
 
 
-
-
-##
-## TEST
-##
-
-#MODEL 1 - Difference in prices day to day
-  #Part 1
-  diffOnep1 <- diff(series[[1]])[-1] 
-  diffNinep1 <- diff(series[[9]])[-1]
-  model <- lm(diffOnep1 ~ diffNinep1 -1)
-  hr <- as.numeric(model$coefficients[1])
-  #Spread
-  spreadOnep1 <- diffOnep1 - hr * diffNinep1
-  meanT <- as.numeric(mean(spreadOnep1, na.rm = TRUE))
-  sdT <- as.numeric(sd(spreadOnep1, na.rm = TRUE))
-  z <- (spreadOnep1 - meanT) / sdT
-  plot(spreadOnep1, main="Part 1 price difference spread p<0.01")
-  #Stationarity test for spread
-  adf.test(spreadOnep1)
-  
-  #PART 2 
-  diffOnep2 <- diff(series2[[1]])[-1]
-  diffNinep2 <- diff(series2[[9]])[-1]
-  modelp2 <- lm (diffOnep2 ~ diffNinep2 -1)
-  hr2 <- as.numeric(modelp2$coefficients[1])
-  spreadOnep2 <- diffOnep2 - hr2 * diffNinep2
-  sdT2 <- as.numeric(sd(spreadOnep2, na.rm = TRUE))
-  plot(spreadOnep2, main="Part 2 price difference spread p<0.01")
-  #Stationarity test for spread
-  adf.test(spreadOnep2)
-
-hist(spreadOnep1, col="blue", breaks=100, main="Spread Histogram Price Difference (1 vs 9) Part1")
-hist(spreadOnep2, col="blue", breaks=100, main="Spread Histogram Price Difference(1 vs 9) Part2")
 #Once spread exceeds upper threshold, sell 1 buy 9
 #Once spread drops below lower threshol, buy 1 sell 9
 upperThr <- meanT + 1 * sdT
@@ -71,21 +50,51 @@ lowerThr <- meanT -1 * sdT
   spreadTwop1 <- series[[1]] - hedge*series[[9]]
   meanTest <- as.numeric(mean(spreadTwop1, na.rm = TRUE))
   sdTest <- as.numeric(sd(spreadTwop1, na.rm = TRUE))
-  z2 <- (spreadTwop1 - meanTest) / sdTest
+
   plot(spreadTwop1, main="Part 1 price spread p=0.3258")
   adf.test(spreadTwop1)
+  
+  z <- (spreadTwop1 - meanTest) / sdTest
+  plot(z, main = "part 1 Z score")
+  adf.test(z)
+  
   #Part 2
   model2p2 <- lm(series2[[1]] ~ series2[[9]])
   hedge2 <- model2p2$coefficients[2]
   spreadTwop2 <- series2[[1]] - hedge2*series2[[9]]
+  meanTest2 <- as.numeric(mean(spreadTwop2, na.rm = TRUE))
+  sdTest2 <- as.numeric(sd(spreadTwop2, na.rm = TRUE))
+  
+  z2 <- (spreadTwop2 - meanTest2) / sdTest2
+  plot(z2, main = "part 2 z score")
+  adf.test(z2)
+  
   plot(spreadTwop2, main="Part 2 price spread p=0.03543")
   adf.test(spreadTwop2)
+  
+  #Feature engineering
+  bigma <- rollmean(spreadTwop1,60) # 60 day ma
+  smallma <- rollmean(spreadTwop1, 5) # 5 day ma
+  sd <- rollapply(spreadTwop1, width = 60, FUN = sd, na.rm=TRUE) # 60 day sd
+  zscore <- (smallma - bigma)/sd 
+  plot (zscore, main="z Score Prices")
 
-hist(spreadTwop1, col="blue", breaks=100, main="Spread Histogram PRICES (1 vs 9) Part1")
-hist(spreadTwop2, col="blue", breaks=100, main="Spread Histogram PRICES (1 vs 9) Part1")
 
 
 
+
+      #Set up rolling linear regression model with lookback set by strategy params
+      x <- series[[1]]
+      y <- series[[9]]
+      model <- roll::roll_lm(x,y,width = 60)
+      hedge <- model$coefficients[,2]
+      spread <- series[[1]] - hedge * series[[9]]
+      mean <- as.numeric(mean(spread, na.rm=TRUE))
+      sd <- as.numeric(sd(spread, na.rm=TRUE))
+      z <- (spread-mean)/sd
+      print(z)
+
+## HALF LIFE OF MEAN REVERSION ##
 half_life <- function(series) {
   
   delta_P <- diff(series)
