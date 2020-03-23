@@ -45,54 +45,55 @@ lowerThr <- meanT -1 * sdT
   
 #Model 2 test - PRICES
   #Part 1
-  model2 <- lm(series[[1]] ~ series[[9]])
-  hedge <- model2$coefficients[2]
-  spreadTwop1 <- series[[1]] - hedge*series[[9]]
-  meanTest <- as.numeric(mean(spreadTwop1, na.rm = TRUE))
-  sdTest <- as.numeric(sd(spreadTwop1, na.rm = TRUE))
+  model <- lm(series[[1]] ~ series[[9]])
+  hedge <- model$coefficients[2]
+  spreadp1 <- series[[1]] - hedge*series[[9]]
+  meanTest <- as.numeric(mean(spreadp1, na.rm = TRUE))
+  sdTest <- as.numeric(sd(spreadp1, na.rm = TRUE))
 
-  plot(spreadTwop1, main="Part 1 price spread p=0.3258")
-  adf.test(spreadTwop1)
+  plot(spreadp1, main="Part 1 price spread p=0.3258")
+  adf.test(spreadp1)
   
-  z <- (spreadTwop1 - meanTest) / sdTest
+  z <- (spreadp1 - meanTest) / sdTest
   plot(z, main = "part 1 Z score")
   adf.test(z)
   
   #Part 2
-  model2p2 <- lm(series2[[1]] ~ series2[[9]])
-  hedge2 <- model2p2$coefficients[2]
-  spreadTwop2 <- series2[[1]] - hedge2*series2[[9]]
-  meanTest2 <- as.numeric(mean(spreadTwop2, na.rm = TRUE))
-  sdTest2 <- as.numeric(sd(spreadTwop2, na.rm = TRUE))
+  model2 <- lm(series2[[1]] ~ series2[[9]])
+  hedge2 <- model2$coefficients[2]
+  spreadp2 <- series2[[1]] - hedge2*series2[[9]]
+  meanTest2 <- as.numeric(mean(spreadp2, na.rm = TRUE))
+  sdTest2 <- as.numeric(sd(spreadp2, na.rm = TRUE))
   
-  z2 <- (spreadTwop2 - meanTest2) / sdTest2
+  z2 <- (spreadp2 - meanTest2) / sdTest2
   plot(z2, main = "part 2 z score")
   adf.test(z2)
   
-  plot(spreadTwop2, main="Part 2 price spread p=0.03543")
-  adf.test(spreadTwop2)
+  plot(spreadp2, main="Part 2 price spread p=0.03543")
+  adf.test(spreadp2)
   
   #Feature engineering
-  bigma <- rollmean(spreadTwop1,60) # 60 day ma
-  smallma <- rollmean(spreadTwop1, 5) # 5 day ma
-  sd <- rollapply(spreadTwop1, width = 60, FUN = sd, na.rm=TRUE) # 60 day sd
+  bigma <- rollmean(spreadp1,60) # 60 day ma
+  smallma <- rollmean(spreadp1, 5) # 5 day ma
+  sd <- rollapply(spreadp1, width = 60, FUN = sd, na.rm=TRUE) # 60 day sd
   zscore <- (smallma - bigma)/sd 
+
   plot (zscore, main="z Score Prices")
 
 
 
 
 
-      #Set up rolling linear regression model with lookback set by strategy params
-      x <- series[[1]]
-      y <- series[[9]]
-      model <- roll::roll_lm(x,y,width = 60)
-      hedge <- model$coefficients[,2]
-      spread <- series[[1]] - hedge * series[[9]]
-      mean <- as.numeric(mean(spread, na.rm=TRUE))
-      sd <- as.numeric(sd(spread, na.rm=TRUE))
-      z <- (spread-mean)/sd
-      print(z)
+  #Set up rolling linear regression model with lookback set by strategy params
+  x <- series[[1]]
+  y <- series[[9]]
+  model <- roll::roll_lm(x,y,width = 60)
+  hedge <- model$coefficients[,2]
+  spread <- series[[1]] - hedge * series[[9]]
+  mean <- as.numeric(mean(spread, na.rm=TRUE))
+  sd <- as.numeric(sd(spread, na.rm=TRUE))
+  z <- (spread-mean)/sd
+  #print(z)
 
 ## HALF LIFE OF MEAN REVERSION ##
 half_life <- function(series) {
@@ -107,4 +108,3 @@ half_life <- function(series) {
   return(H)
 }
  
-H <- half_life(spreadTwop2)

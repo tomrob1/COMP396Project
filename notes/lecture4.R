@@ -88,6 +88,8 @@ backtestAndPlot(path=path,
                 filename="inversely_prop_open",
                 main="Position sizes inversely proportional to Open")
 
+
+
 # pos sizes inverse prop to avg abs diffs chart
 largestAvgAbsDiffs <- max(avgAbsDiffs)
 positionSizes <- round(largestAvgAbsDiffs/avgAbsDiffs)

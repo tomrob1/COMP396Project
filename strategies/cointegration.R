@@ -86,22 +86,22 @@ calculateSpreadZScore <- function(clStore, column, iter, params){
 
 # functions for managing the store
 
-initClStore  <- function(newRowList,series) {
-  clStore <- matrix(0,nrow=maxRows,ncol=length(series))
-  return(clStore)
+initOpStore  <- function(newRowList,series) {
+  opStore <- matrix(0,nrow=maxRows,ncol=length(series))
+  return(opStore)
 }
-updateClStore <- function(clStore, newRowList, series, iter) {
+updateOpStore <- function(clStore, newRowList, series, iter) {
   for (i in 1:length(series))
-    clStore[iter,i] <- as.numeric(newRowList[[series[i]]]$Close)
-  return(clStore)
+    opStore[iter,i] <- as.numeric(newRowList[[series[i]]]$Open)
+  return(opStore)
 }
 initStore <- function(newRowList,series) {
-  return(list(iter=0,cl=initClStore(newRowList,series)))
+  return(list(iter=0,cl=initOpStore(newRowList,series)))
 }
 # cl store variable, calls update store
 updateStore <- function(store, newRowList, series) {
   store$iter <- store$iter + 1
-  store$cl <- updateClStore(store$cl,newRowList,series,store$iter) 
+  store$op <- updateOpStore(store$op,newRowList,series,store$iter) 
   return(store)
 }
 

@@ -11,7 +11,8 @@ example_strategies <- c("fixed",
                         "simple_limit",
                         "probmomentum",
                         "extreme_limit",
-                        "cointegration"
+                        "cointegration",
+                        "cointegration2"
                         )
 
 example_params <- list(
@@ -28,7 +29,8 @@ example_params <- list(
                     "bbands_holding_period"=list(lookback=20,sdParam=1.5,series=1:10,posSizes=rep(1,10),holdPeriod=4),
                     "simple_limit"=list(spreadPercentage=0.001,inventoryLimits=rep(10,10)),
                     "extreme_limit"=list(spreadPercentage=0.001,inventoryLimits=rep(10,10)),
-                    "cointegration"=list(series=c(1,9), lookback=60)
+                    "cointegration"=list(series=c(1,9), lookback=60),
+                    "cointegration2"=list(series=c(1,9), lookback=60)
                     )
 
 load_strategy <- function(strategy) {
