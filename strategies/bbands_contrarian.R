@@ -31,9 +31,9 @@ getOrders <- function(store, newRowList, currentPos, info, params) {
            }
        }
     }
-    print(pos)
+    #print(pos)
     marketOrders <- marketOrders + pos
-    print(marketOrders)
+    #print(marketOrders)
 
 
     return(list(store=store,marketOrders=marketOrders,

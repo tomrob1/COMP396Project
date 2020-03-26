@@ -1,13 +1,14 @@
 maxRows<- 10000
 library(roll)
 getOrders <- function(store, newRowList, currentPos, info, params){
+    
     allzero <- rep(0, length(newRowList))
 
     if (is.null(store)) {
       store <- initStore(newRowList, params$series)
     }
     store <- updateStore(store, newRowList, params$series)
-    marketOrders <- -currentPos; pos <- allzero
+    marketOrders <- -currentPos; pos <- allzero # exit all positions
     
     x <- store$cl[1:store$iter,1] # Series 1    
     y <- store$cl[1:store$iter,2] # Series 9
@@ -15,23 +16,26 @@ getOrders <- function(store, newRowList, currentPos, info, params){
     # Price ratio
     ratio <- y/x
 
-    if (store$iter > params$lookback){
+    if (store$iter > params$big){
       #startIndex <- store$iter - params$lookback
     
-        z <- last(rollma(ratio))
+        z <- last(rollma(ratio,params$big,params$small))
         #z <- last(rollz(ratio,60))
             
-        if (z >= 1){
+        #NEED TO ADD POSITION SIZES
+        if (z >= params$upperThreshold){
             # Buy series 1, short 9 
             marketOrders <- c(1,0,0,0,0,0,0,0,-1,0)
-        } else if (z <= -1 ) {
+        } else if (z <= params$lowerThreshold) {
             #Short series 1, buy 9
             marketOrders <- c(-1,0,0,0,0,0,0,0,1,0)
         }
-
+        
     } else  
     marketOrders <- allzero
-    print(marketOrders)
+    #print(marketOrders)
+    #print(store)
+    
     return(list(store=store,marketOrders=marketOrders,
 	                    limitOrders1=allzero,limitPrices1=allzero,
 	                    limitOrders2=allzero,limitPrices2=allzero))
@@ -47,20 +51,22 @@ rollz <- function(x,window){
     return (z)
 }
 
-rollma<- function(x) {
-    bigma <- rollmean(x,60)
-    smallma <- rollmean(x,5)
-    sd <- rollapply(x, width=60, FUN=sd, na.rm=TRUE)
+rollma<- function(x, bigwindow, smallwindow) {
+    bigma <- rollmean(x,bigwindow)
+    smallma <- rollmean(x,smallwindow)
+    sd <- rollapply(x, width=bigwindow, FUN=sd, na.rm=TRUE)
     z <- ((smallma - bigma)/ sd)
     return (z)
 }
 
+'
 rollLM <- function(x, y, width){
     model <- roll::roll_lm(x,y,width = width)
     hedge <- model$coefficients[,2]
     spread <- x - hedge * y
     return (spread)
 }
+'
 
 ###############################################################################
 # All the subsequent functions were designed to simplify and 

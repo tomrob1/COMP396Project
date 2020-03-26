@@ -37,13 +37,8 @@ ggplot() +
   ggtitle("Part 2 Series 1 + 9")
 
 
-#Once spread exceeds upper threshold, sell 1 buy 9
-#Once spread drops below lower threshol, buy 1 sell 9
-upperThr <- meanT + 1 * sdT
-lowerThr <- meanT -1 * sdT
-
   
-#Model 2 test - PRICES
+#Model test - PRICES
   #Part 1
   model <- lm(series[[1]] ~ series[[9]])
   hedge <- model$coefficients[2]
@@ -76,24 +71,22 @@ lowerThr <- meanT -1 * sdT
   bigma <- rollmean(spreadp1,60) # 60 day ma
   smallma <- rollmean(spreadp1, 5) # 5 day ma
   sd <- rollapply(spreadp1, width = 60, FUN = sd, na.rm=TRUE) # 60 day sd
-  zscore <- (smallma - bigma)/sd 
+  zscore <- (smallma - bigma)/sd
 
   plot (zscore, main="z Score Prices")
 
 
 
-
-
-  #Set up rolling linear regression model with lookback set by strategy params
-  x <- series[[1]]
-  y <- series[[9]]
-  model <- roll::roll_lm(x,y,width = 60)
-  hedge <- model$coefficients[,2]
-  spread <- series[[1]] - hedge * series[[9]]
-  mean <- as.numeric(mean(spread, na.rm=TRUE))
-  sd <- as.numeric(sd(spread, na.rm=TRUE))
-  z <- (spread-mean)/sd
-  #print(z)
+#Set up rolling linear regression model with lookback set by strategy params
+x <- series[[1]]
+y <- series[[9]]
+model <- roll::roll_lm(x,y,width = 60)
+hedge <- model$coefficients[,2]
+spread <- series[[1]] - hedge * series[[9]]
+mean <- as.numeric(mean(spread, na.rm=TRUE))
+sd <- as.numeric(sd(spread, na.rm=TRUE))
+z <- (spread-mean)/sd
+#print(z)
 
 ## HALF LIFE OF MEAN REVERSION ##
 half_life <- function(series) {

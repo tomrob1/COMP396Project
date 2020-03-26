@@ -30,7 +30,7 @@ example_params <- list(
                     "simple_limit"=list(spreadPercentage=0.001,inventoryLimits=rep(10,10)),
                     "extreme_limit"=list(spreadPercentage=0.001,inventoryLimits=rep(10,10)),
                     "cointegration"=list(series=c(1,9), lookback=60),
-                    "cointegration2"=list(series=c(1,9), lookback=60)
+                    "cointegration2"=list(series=c(1,9), big=60, small=5, upperThreshold=1, lowerThreshold=-1)
                     )
 
 load_strategy <- function(strategy) {
