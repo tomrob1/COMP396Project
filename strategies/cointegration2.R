@@ -14,15 +14,11 @@ getOrders <- function(store, newRowList, currentPos, info, params){
     y <- store$cl[1:store$iter,2] # Series 9
 
     # Price ratio
-    ratio <- y/x
-
+    ratio <- y/x #Series 9/1
+    #print(last(ratio))
     if (store$iter > params$big){
-      #startIndex <- store$iter - params$lookback
-    
-        z <- last(rollma(ratio,params$big,params$small))
-        #z <- last(rollz(ratio,60))
-            
-        #NEED TO ADD POSITION SIZES
+        z <- last(rollma(ratio,params$big,params$small)) # calculate zscore
+        print(z)
         if (z >= params$upperThreshold){
             # Buy series 1, short 9 
             marketOrders <- c(1,0,0,0,0,0,0,0,-1,0)
@@ -44,29 +40,16 @@ getOrders <- function(store, newRowList, currentPos, info, params){
 ###############################################################################
 # main strategy logic
 ###############################################################################
-rollz <- function(x,window){
-    mean = rollapply(x, window, mean)
-    std = rollapply(x, window, sd)
-    z = (x - mean) / std
-    return (z)
-}
-
+# Calculate 5 + 60 day moving average
+# Calculate 60day standard deviation
+# Z = (5ma - 60ma)/60sd
 rollma<- function(x, bigwindow, smallwindow) {
     bigma <- rollmean(x,bigwindow)
     smallma <- rollmean(x,smallwindow)
-    sd <- rollapply(x, width=bigwindow, FUN=sd, na.rm=TRUE)
+    sd <- rollapply(x, width=60, FUN=sd, na.rm=TRUE)
     z <- ((smallma - bigma)/ sd)
     return (z)
 }
-
-'
-rollLM <- function(x, y, width){
-    model <- roll::roll_lm(x,y,width = width)
-    hedge <- model$coefficients[,2]
-    spread <- x - hedge * y
-    return (spread)
-}
-'
 
 ###############################################################################
 # All the subsequent functions were designed to simplify and 
